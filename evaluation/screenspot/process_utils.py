@@ -42,6 +42,8 @@ def pred_2_point(s):
 def extract_bbox(s):
     # Regular expression to find the content inside <box> and </box>
     pattern = r"<box>\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)\s*,\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)\s*</box>"
-    matches = re.findall(pattern, s)
-    # Convert the tuples of strings into tuples of integers
-    return [(int(x.split(',')[0]), int(x.split(',')[1])) for x in sum(matches, ())]
+    match = re.search(pattern, s)
+    if match:
+        x1, y1, x2, y2 = map(int, match.groups())
+        return [(x1, y1), (x2, y2)]
+    return None
