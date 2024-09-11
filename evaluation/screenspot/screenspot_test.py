@@ -23,19 +23,19 @@ parser.add_argument('--task', type=str, default='all')
 parser.add_argument('--batch_size', type=int, default=1)
 
 args = parser.parse_args()
-model = Qwen2VLForConditionalGeneration.from_pretrained(
-    args.qwen_path,
-    torch_dtype=torch.bfloat16,
-    device_map="cuda",
-    trust_remote_code=True,
-).eval()
 # model = Qwen2VLForConditionalGeneration.from_pretrained(
 #     args.qwen_path,
 #     torch_dtype=torch.bfloat16,
-#     attn_implementation="flash_attention_2",
-#     device_map="auto",
+#     device_map="cuda",
 #     trust_remote_code=True,
 # ).eval()
+model = Qwen2VLForConditionalGeneration.from_pretrained(
+    args.qwen_path,
+    torch_dtype=torch.bfloat16,
+    attn_implementation="flash_attention_2",
+    device_map="auto",
+    trust_remote_code=True,
+).eval()
 
 processor = AutoProcessor.from_pretrained(args.qwen_path)
 
@@ -68,7 +68,7 @@ for task in tasks:
         bbox = item["bbox"]
         bbox = [bbox[0], bbox[1], bbox[0] + bbox[2], bbox[1] + bbox[3]]
 
-        system_prompt = "You response should formatted as `<box>(x, y), (w, h)</box>` (or w.o. <box> tag) where (x, y) is coodinates of the left top point of the element and (w, h) is the width and height of the element. Or the point of the element which formatted as `(x, y)`."
+        system_prompt = "You are presented with a screenshot where the x-axis represents the width of the screen (increasing from left to right) and the y-axis represents the height (increasing from top to bottom). The origin (0, 0) is located at the top-left corner of the image. You response should formatted as `<box>(x1, y1), (x2, y2)</box>` (or w.o. <box> tag) where (x1, y1) is coodinates of the left top point of the element and (x2, y2) is the bottom right one. Or the mid-point of the element which formatted as `(x, y)`."
         question_prompt = "In this UI screenshot, what is the position of the element corresponding to the command \"{}\" (with point)?"
 
         messages = [
